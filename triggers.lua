@@ -2,14 +2,16 @@ module("triggers")
 
 function help(bot, chan, msg)
   local t = {}
-  for k,v in pairs(triggers) do
-    table.insert(t, tostring(k))
+  for k,v in pairs(bot.triggers) do
+    if not (string.sub(tostring(k), 1, 1) == "_") then
+      table.insert(t, tostring(k))
+    end
   end
   bot:say(chan, "Available triggers: " .. tostring(table.concat(t, ", ")))
 end
 
 function git(bot, chan, msg)
-  bot:say(chan, "html: http://gist.github.com/" .. bot.config.gistid .. " - public clone url: git://gist.github.com/" .. bot.config.gistid .. ".git")
+  bot:say(chan, "html: http://github.com/sweetfish/lurch - public clone url: git://github.com/sweetfish/lurch.git")
 end
 
 function gibbon(bot, chan, msg)
@@ -22,9 +24,9 @@ function dolan(bot, chan, msg)
 
   local i,j,t1,t2 = string.find(msg, 'dolan "(.-)" "(.-)"')
   if not (i == nil) then
-    request_body = "templateType=AdviceDogSpinoff&text0=" .. tostring(t1) .. "&text1=" .. tostring(t2) .. "&templateID=106165&generatorName=Uncle-Dolan"
+    local request_body = "templateType=AdviceDogSpinoff&text0=" .. tostring(t1) .. "&text1=" .. tostring(t2) .. "&templateID=106165&generatorName=Uncle-Dolan"
   
-    b, c, h = http.request("http://memegenerator.net/Instance/CreateOrEdit", request_body)
+    local b, c, h = http.request("http://memegenerator.net/Instance/CreateOrEdit", request_body)
 
     local a,c,img_url = string.find(b, '.-a href="(.-)".+')
     if not (a == nil) then
@@ -40,9 +42,9 @@ function bitch(bot, chan, msg)
 
   local i,j,t1,t2 = string.find(msg, 'bitch "(.-)" "(.-)"')
   if not (i == nil) then
-    request_body = "templateType=AdviceDogSpinoff&text0=" .. tostring(t1) .. "&text1=" .. tostring(t2) .. "&templateID=1343&generatorName=stupid-bitch"
+    local request_body = "templateType=AdviceDogSpinoff&text0=" .. tostring(t1) .. "&text1=" .. tostring(t2) .. "&templateID=1343&generatorName=stupid-bitch"
   
-    b, c, h = http.request("http://memegenerator.net/Instance/CreateOrEdit", request_body)
+    local b, c, h = http.request("http://memegenerator.net/Instance/CreateOrEdit", request_body)
     local a,c,img_url = string.find(b, '.-a href="(.-)".+')
     if not (a == nil) then
       bot:say(chan, "http://images.memegenerator.net" .. tostring(img_url) .. ".jpg")

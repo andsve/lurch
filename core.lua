@@ -48,6 +48,10 @@ function b:parse_message(line, err)
 
   -- first incomming message?
   if not self.firstresponse then
+    
+    -- make sure we have the latest config
+    self:load_config("settings")
+    
     self.firstresponse = true
   
     -- send auth response
@@ -98,7 +102,7 @@ function b:say(chan, msg)
     if (chan == nil) then
       chan = ""
       local i = 1
-      for k,v in pairs(self.channels) do
+      for k,v in pairs(self.config.channels) do
         if not (string.sub(v, 1, 1) == "#") then
           v = "#" .. v
         end
@@ -284,7 +288,7 @@ function b:trigger(user, chan, msg)
   
   for k,v in pairs(self.triggers) do
     if string.sub(msg, 1, #tostring(k)) == tostring(k) then
-      v(self, chan, msg)
+      setfenv(v, _G)(self, chan, msg)
       break
     end
   end
@@ -293,12 +297,17 @@ end
 
 -- save bot config to file
 function b:load_config(file)
-  local config = require(file)
+  local filecheck, err = io.open(file .. ".lua")
   
-  self.config = {}
-  for k,v in pairs(config) do
-    if not (string.sub(tostring(k), 1, 1) == "_") then
-      self.config[k] = v
+  if not (filecheck == nil) then
+    package.loaded[file] = nil
+    local config = require(file)
+  
+    self.config = {}
+    for k,v in pairs(config) do
+      if not (string.sub(tostring(k), 1, 1) == "_") then
+        self.config[k] = v
+      end
     end
   end
 end
@@ -308,13 +317,18 @@ function b:save_config(file)
   local new_data = 'module("' .. tostring(file) .. '")\n'
   
   local function configval_to_string(k,v,indent)
+    local ret_str = ""
+    if not (type(k) == "number") then
+      ret_str = tostring(k) .. " = "
+    end
+    
     if type(v) == "number" then
-      return (tostring(k) .. ' = "' .. tostring(v) .. '"')
+      ret_str = ret_str .. tostring(v)
     elseif type(v) == "string" then
-      return (tostring(k) .. ' = ' .. tostring(v))
+      ret_str = ret_str .. '"' .. tostring(v) .. '"'
     elseif type(v) == "table" then
       
-      local ret_str = tostring(k) .. " = {"
+      ret_str = ret_str .. "{"
       
       local ret_table = {}
       for i,j in pairs(v) do
@@ -326,10 +340,12 @@ function b:save_config(file)
       end
       ret_str = ret_str .. table.concat(ret_table, ",\n" .. sep )
       
-      return (ret_str .. "\n" .. sep .. "}")
+      ret_str = ret_str .. "\n" .. sep .. "}"
     else
       return "ERROR"
     end
+    
+    return ret_str
   end
   
   local new_config_table = {}
@@ -379,5 +395,6 @@ function bind_functions( bot )
   end
   
   -- load triggers
+  package.loaded["triggers"] = nil
   bot.triggers = require("triggers")
 end
