@@ -74,7 +74,7 @@ function b:parse_message(line, err)
   
   -- trigger ?
   -- (triggers are in the form of ':<triggername>')
-  local i,j,s,c,k = string.find(line, ":(.-)!.- PRIVMSG (.-) :" .. triggerprefix .. "(.+)")
+  local i,j,s,c,k = string.find(line, ":(.-)!.- PRIVMSG (.-) :" .. self.config.triggerprefix .. "(.+)")
   if not (i == nil) then
     
     -- if 'sender' was not a channel, it must be the nickname
@@ -142,7 +142,7 @@ end
 -- function also pulls the latest commit from the git repo
 function b:reload(chan)
   self:say(chan, "Pulling latest git...")
-  os.execute("git pull")
+  os.execute("git pull origin master")
   self:say(chan, "Reloading core.lua...")
   
   local succ, err = pcall(dofile, "core.lua")

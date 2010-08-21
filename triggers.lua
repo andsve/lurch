@@ -1,6 +1,6 @@
 module("triggers")
 
-function triggers.help(bot, chan, msg)
+function help(bot, chan, msg)
   local t = {}
   for k,v in pairs(triggers) do
     table.insert(t, tostring(k))
@@ -8,15 +8,15 @@ function triggers.help(bot, chan, msg)
   bot:say(chan, "Available triggers: " .. tostring(table.concat(t, ", ")))
 end
 
-function triggers.git(bot, chan, msg)
+function git(bot, chan, msg)
   bot:say(chan, "html: http://gist.github.com/" .. bot.config.gistid .. " - public clone url: git://gist.github.com/" .. bot.config.gistid .. ".git")
 end
 
-function triggers.gibbon(bot, chan, msg)
+function gibbon(bot, chan, msg)
   bot:say(chan, '"shit was so cash, regards dolan"')
 end
 
-function triggers.dolan(bot, chan, msg)
+function dolan(bot, chan, msg)
   local http = require("socket.http")
   local ltn12 = require("ltn12")
 
@@ -34,7 +34,7 @@ function triggers.dolan(bot, chan, msg)
   end
 end
 
-function triggers.bitch(bot, chan, msg)
+function bitch(bot, chan, msg)
   local http = require("socket.http")
   local ltn12 = require("ltn12")
 

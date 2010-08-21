@@ -28,7 +28,7 @@ function create_bot(serveraddr, serverport)
   
   -- bind core-functions (core.lua)
   function bot:bind_functions()
-    os.execute("git pull")
+    --os.execute("git pull")
     dofile("core.lua")
     bind_functions(self)
   end
