@@ -8,12 +8,13 @@ function create_bot(serveraddr, serverport)
                -- internal states
                firstresponse = false, -- change as soon as the server sends us any data
                connection_ok = false, -- callback to call when a connection is successfully made
+               altnickid = 0,         -- currently used alt. nick (0 = non alternative, ie. normal nickname)
                
-               
-               altnickid = 0,
-               config = { nickname = "lurch", -- standard config
+               -- standard config
+               config = { nickname = "lurch",
                           altnicks = {"lurch_", "lurchbot"},
                           channels = {"lurchbot"},
+                          modules = {},
                           triggerprefix = ":",
                }
               }

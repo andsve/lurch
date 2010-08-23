@@ -109,6 +109,11 @@ function b:parse_message(line, err)
     
     self:trigger(s, c, k)
   end
+  
+  -- forward to modules
+  for k,v in pairs(self.config.modules) do
+    setfenv(v.core.parse_message, _G)(self, chan, line)
+  end
 end
 
 -- send a message to a specific channel or nickname
@@ -186,35 +191,49 @@ function b:reload(chan)
   end
 end
 
---[[
-TODO: This code will be useful for the module system later on.
-function b:rebase(chan, gistid)
-  self:say(chan, "Adding remote git repo.")
-  os.execute("git remote add " .. tostring(gistid) .. " git://gist.github.com/" .. tostring(gistid) .. ".git")
-  self:say(chan, "Pulling remote git repo.")
-  os.execute("git pull " .. tostring(gistid) .. " master")
-  
-  self:say(chan, "Reloading core.lua...")
-  
-  local succ, err = pcall(dofile, "core.lua")
-  if succ then
-    local succ, err = pcall(bind_functions, self)
-    
-    if succ then
-      self:say(chan, "Done.")
-      self.gistid = gistid
-    else
-      self:say(chan, "Method binding failed:")
-      self:say(chan, tostring(err))
-    end
+function b:unload_module(chan, modulename)
+  if self.config.modules[modulename] == nil then
+    self:say(chan, "No module with that name.")
   else
-    self:say(chan, "Failed, error:")
-    self:say(chan, tostring(err))
+    package.loaded["modules/" .. modulename .. "/" .. modulename] = nil
+    self.config.modules[modulename] = nil
+  end
+end
+
+function b:load_module(chan, modulename, moduleurl)
+  if not (moduleurl == nil) then
+
+    -- does module exist allready?
+    local tryopen, errmsg = io.open("modules/" .. tostring(modulename) .. "/tmpfile", "w")
+    if tryopen == nil then
+      -- create dir
+      os.execute("mkdir modules/" .. tostring(modulename))
+    end
+
+    self.config.modules[modulename] = {moduleurl = moduleurl}
+
+  else
+
+    local tryopen, errmsg = io.open("modules/" .. tostring(modulename) .. "/tmpfile", "w")
+    if tryopen == nil then
+      -- module does not exist
+      self.say(chan,"Module does not exist! Use " .. tostring(self.config.triggerprefix) .. "loadmodule <name> <giturl> instead.")
+      return
+    end
+
   end
 
-  self.config.gistid = gistid
+  -- remove old
+  os.execute("rm -rf modules/" .. tostring(modulename))
+
+  -- pull code
+  os.execute("git clone " .. self.config.modules[modulename].moduleurl .. " modules/" .. tostring(modulename))
+
+  -- reload into modules
+  package.loaded["modules/" .. modulename .. "/" .. modulename] = nil
+  self.config.modules[modulename].core = require("modules/" .. modulename .. "/" .. modulename)
+
 end
-]]
 
 -- parse triggers
 function b:trigger(user, chan, msg)
@@ -248,6 +267,30 @@ function b:trigger(user, chan, msg)
     -- loadconf ?
     if string.sub(msg, 1) == "loadconf" then
       self:load_config("settings")
+    end
+    
+    -- loadmod ?
+    if string.sub(msg, 1, 7) == "loadmod" then
+      --self:save_config("settings")
+      local i,j,m,u = string.find(msg, "loadmod (.-) (.+)")
+      print("m: " .. tostring(m) .. " u: " .. tostring(u))
+      if not (i == nil) then
+        self:load_module(chan, m, u)
+      else
+        local i,j,m = string.find(msg, "loadmod (.-)")
+        if not (i == nil) then
+          self:load_module(chan, m, nil)
+        end
+      end
+    end
+
+    -- unloadmod ?
+    if string.sub(msg, 1, 9) == "unloadmod" then
+      --self:load_config("settings")
+      local i,j,m = string.find(msg, "unloadmod (.+)")
+      if not (i == nil) then
+        self:unload_module(chan, m)
+      end
     end
     
     --[[ rebase ?
