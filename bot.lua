@@ -9,6 +9,8 @@ function create_bot(serveraddr, serverport)
                firstresponse = false, -- change as soon as the server sends us any data
                connection_ok = false, -- callback to call when a connection is successfully made
                
+               
+               altnickid = 0,
                config = { nickname = "lurch", -- standard config
                           altnicks = {"lurch_", "lurchbot"},
                           channels = {"lurchbot"},

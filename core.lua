@@ -60,6 +60,27 @@ function b:parse_message(line, err)
     return
   end
   
+  -- response id ?
+  local i,j,respid,respstr = string.find(line, ":.- (%d+) (.+)")
+  if not (i == nil) then
+    if respid == "433" then    
+      
+      -- nick allready in use, try to change to alternative
+      local new_nick = ""
+      self.altnickid = self.altnickid + 1
+      if self.altnickid >= #self.config.altnicks then
+        -- run out of alternative nicks, make up a new one!
+        new_nick = self.config.nickname .. tostring(math.random(1,9999))
+      else
+        new_nick = self.config.altnicks[self.altnickid]
+      end
+    
+      self:change_nickname(new_nick)
+    
+      return
+    end
+  end
+  
   -- we have a working connection!
   if string.sub(line, 1, 1) == ":" then
     if not self.connection_ok then
