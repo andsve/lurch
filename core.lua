@@ -112,7 +112,7 @@ function b:parse_message(line, err)
   
   -- forward to modules
   for k,v in pairs(self.config.modules) do
-    setfenv(v.core.parse_message, _G)(self, chan, line)
+    setfenv(v.core.parse_message, _G)(self, line)
   end
 end
 
@@ -232,6 +232,8 @@ function b:load_module(chan, modulename, moduleurl)
   -- reload into modules
   package.loaded["modules/" .. modulename .. "/" .. modulename] = nil
   self.config.modules[modulename].core = require("modules/" .. modulename .. "/" .. modulename)
+  
+  self:say(chan, "Module loaded.")
 
 end
 
@@ -415,8 +417,10 @@ function b:save_config(file)
   local new_config_table = {}
   if not (self.config == nil) then
     for k,v in pairs(self.config) do
-      local new_value = ""
-      table.insert(new_config_table, configval_to_string(k,v, #tostring(k) + 3))
+      if not (tostring(k) == "modules") then
+        local new_value = ""
+        table.insert(new_config_table, configval_to_string(k,v, #tostring(k) + 3))
+      end
     end
   end
   
