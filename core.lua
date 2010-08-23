@@ -111,8 +111,8 @@ function b:parse_message(line, err)
   end
   
   -- forward to modules
-  for k,v in pairs(self.config.modules) do
-    setfenv(v.core.parse_message, _G)(self, line)
+  for k,v in pairs(self.modules) do
+    setfenv(v.parse_message, _G)(self, line)
   end
 end
 
@@ -197,6 +197,7 @@ function b:unload_module(chan, modulename)
   else
     package.loaded["modules/" .. modulename .. "/" .. modulename] = nil
     self.config.modules[modulename] = nil
+    self.modules[modulename] = nil
   end
 end
 
@@ -210,7 +211,8 @@ function b:load_module(chan, modulename, moduleurl)
       os.execute("mkdir modules/" .. tostring(modulename))
     end
 
-    self.config.modules[modulename] = {moduleurl = moduleurl}
+    self.config.modules[modulename] = moduleurl
+    self.modules[modulename] = {}
 
   else
 
@@ -227,11 +229,11 @@ function b:load_module(chan, modulename, moduleurl)
   os.execute("rm -rf modules/" .. tostring(modulename))
 
   -- pull code
-  os.execute("git clone " .. self.config.modules[modulename].moduleurl .. " modules/" .. tostring(modulename))
+  os.execute("git clone " .. self.config.modules[modulename] .. " modules/" .. tostring(modulename))
 
   -- reload into modules
   package.loaded["modules/" .. modulename .. "/" .. modulename] = nil
-  self.config.modules[modulename].core = require("modules/" .. modulename .. "/" .. modulename)
+  self.modules[modulename] = require("modules/" .. modulename .. "/" .. modulename)
   
   self:say(chan, "Module loaded.")
 
@@ -275,7 +277,6 @@ function b:trigger(user, chan, msg)
     if string.sub(msg, 1, 7) == "loadmod" then
       --self:save_config("settings")
       local i,j,m,u = string.find(msg, "loadmod (.-) (.+)")
-      print("m: " .. tostring(m) .. " u: " .. tostring(u))
       if not (i == nil) then
         self:load_module(chan, m, u)
       else
@@ -417,10 +418,8 @@ function b:save_config(file)
   local new_config_table = {}
   if not (self.config == nil) then
     for k,v in pairs(self.config) do
-      if not (tostring(k) == "modules") then
-        local new_value = ""
-        table.insert(new_config_table, configval_to_string(k,v, #tostring(k) + 3))
-      end
+      local new_value = ""
+      table.insert(new_config_table, configval_to_string(k,v, #tostring(k) + 3))
     end
   end
   
