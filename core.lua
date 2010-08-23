@@ -216,8 +216,9 @@ function b:load_module(chan, modulename, moduleurl)
 
   else
 
-    local tryopen, errmsg = io.open("modules/" .. tostring(modulename) .. "/tmpfile", "w")
-    if tryopen == nil then
+    if (self.config.modules[modulename] == nil) then
+    --local tryopen, errmsg = io.open("modules/" .. tostring(modulename) .. "/tmpfile", "w")
+    --if tryopen == nil then
       -- module does not exist
       self.say(chan,"Module does not exist! Use " .. tostring(self.config.triggerprefix) .. "loadmodule <name> <giturl> instead.")
       return
@@ -229,7 +230,8 @@ function b:load_module(chan, modulename, moduleurl)
   os.execute("rm -rf modules/" .. tostring(modulename))
 
   -- pull code
-  os.execute("git clone " .. self.config.modules[modulename] .. " modules/" .. tostring(modulename))
+  print("tostring(self.config.modules[modulename]): " .. tostring(self.config.modules[modulename]))
+  os.execute("git clone " .. tostring(self.config.modules[modulename]) .. " modules/" .. tostring(modulename))
 
   -- reload into modules
   package.loaded["modules/" .. modulename .. "/" .. modulename] = nil
@@ -280,7 +282,7 @@ function b:trigger(user, chan, msg)
       if not (i == nil) then
         self:load_module(chan, m, u)
       else
-        local i,j,m = string.find(msg, "loadmod (.-)")
+        local i,j,m = string.find(msg, "loadmod (.+)")
         if not (i == nil) then
           self:load_module(chan, m, nil)
         end
