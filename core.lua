@@ -441,16 +441,25 @@ function b:pump()
   local line, err = self.client:receive()
   
   if not (err == nil) then
-    self:log("Error from client:recieve(): " .. tostring(err))
-    return false
+    if not (err == "timeout") then
+      self:log("Error from client:recieve(): " .. tostring(err))
+      return false
+    end
   end
   
   if line then
     -- got message
+    self.activitystamp = os.time()
     local succ, err = pcall(self.parse_message, self, line, err)
     if not succ then
       self:log("Error when trying to parse message: " .. tostring(err))
     end
+    return true
+  end
+  
+  if (os.time() - self.activitystamp >= self.activitytimeout) then
+    self:log("Connection timeout!")
+    return false
   end
   
   return true

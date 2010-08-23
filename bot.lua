@@ -13,6 +13,11 @@ function create_bot(serveraddr, serverport)
                -- modules loaded
                modules = {},
                
+               -- time handling
+               activitystamp = 0,
+               activitytimeout = 60*3,
+               
+               
                -- standard config
                config = { nickname = "lurch",
                           altnicks = {"lurch_", "lurchbot"},
@@ -25,11 +30,14 @@ function create_bot(serveraddr, serverport)
   -- initiate a connection to the server
   function bot:connect()
     self.client = socket.tcp()
-    self.client:settimeout(60*3, 't') -- set total timeout
+    --self.client:settimeout(60*3, 't') -- set total timeout
+    self.client:settimeout(3)
     local succ, err = self.client:connect(self.serveraddr, self.serverport)
     if not succ then
       print("Connection failed: " .. tostring(err))
     end
+    self.client:settimeout(0)
+    self.activitystamp = os.time()
   end
   
   -- bind core-functions (core.lua)
