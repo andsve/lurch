@@ -14,10 +14,6 @@ function git(bot, chan, msg)
   bot:say(chan, "html: http://github.com/sweetfish/lurch - public clone url: git://github.com/sweetfish/lurch.git")
 end
 
-function gibbon(bot, chan, msg)
-  bot:say(chan, '"shit was so cash, regards dolan"')
-end
-
 function dolan(bot, chan, msg)
   local http = require("socket.http")
   local ltn12 = require("ltn12")
