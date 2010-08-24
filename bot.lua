@@ -16,6 +16,14 @@ function create_bot(serveraddr, serverport)
                -- time handling
                activitystamp = 0,
                activitytimeout = 60*3,
+               lastsentstamp = 0,
+               
+               -- output handling
+               outputqueue = {}, -- awaiting messages that should be sent
+               queuemax = 2,     -- maximum queue elements that can be outputed at once
+               queuewait = 3,    -- sec (wait time for messages bigger than the queuemax)
+               msgwait = 1,      -- sec (wait time between all messages)
+               maxstringlength = 350, -- maximum char length of a string per queue element
                
                
                -- standard config
@@ -30,7 +38,6 @@ function create_bot(serveraddr, serverport)
   -- initiate a connection to the server
   function bot:connect()
     self.client = socket.tcp()
-    --self.client:settimeout(60*3, 't') -- set total timeout
     self.client:settimeout(3)
     local succ, err = self.client:connect(self.serveraddr, self.serverport)
     if not succ then
@@ -38,6 +45,7 @@ function create_bot(serveraddr, serverport)
     end
     self.client:settimeout(0)
     self.activitystamp = os.time()
+    self.lastsentstamp = os.time()
   end
   
   -- bind core-functions (core.lua)

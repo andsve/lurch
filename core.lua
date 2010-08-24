@@ -13,9 +13,13 @@ function b:log(str)
 end
 
 -- send a raw message to the server
-function b:send(str)
-  self.client:send(str .. "\n")
-  self:log("[<-] " .. str)
+function b:send(str, prio)
+  --self.client:send(str .. "\n")
+  --self:log("[<-] " .. str)
+  if prio == nil then
+    prio = 1
+  end
+  table.insert(self.outputqueue, {msg = str, prio = prio})
 end
 
 -- called when we have a working connection
@@ -141,7 +145,16 @@ function b:say(chan, msg)
       end
     end
     
-    self:send("PRIVMSG " .. chan .. " :" .. msg)
+    local pre = ""
+    local suf = msg
+    while (not (suf == "")) do
+      pre = string.sub(suf, 1, self.maxstringlength)
+      suf = string.sub(suf, self.maxstringlength)
+      --table.insert(self.outputqueue, {msg = pre, prio = prio})
+      self:send("PRIVMSG " .. chan .. " :" .. pre)
+    end
+    
+    --self:send("PRIVMSG " .. chan .. " :" .. msg)
   end
 end
 
@@ -273,6 +286,11 @@ function b:trigger(user, chan, msg)
     -- loadconf ?
     if string.sub(msg, 1) == "loadconf" then
       self:load_config("settings")
+    end
+    
+    -- clearqueue ?
+    if string.sub(msg, 1) == "clearqueue" then
+      self.outputqueue = {}
     end
     
     -- loadmod ?
@@ -438,6 +456,38 @@ end
 -- retruns false if an error occurs
 function b:pump()
   
+  -- handle outgoing messages
+  local msgdelta = os.time() - self.lastsentstamp
+  if (#self.outputqueue > 0) and (msgdelta >= self.msgwait) then
+    
+    if (#self.outputqueue > self.queuemax) then
+      -- make sure we wait extra long for messages outside the queue
+      if (msgdelta >= self.queuewait) then
+        -- send first one in queue
+        local elem = self.outputqueue[1]
+        self.client:send(elem.msg .. "\n")
+        self:log("[<-] " .. elem.msg)
+        table.remove(self.outputqueue, 1)
+      
+        self.lastsentstamp = os.time()
+      end
+    else
+      -- send all remaining
+      local elem = self.outputqueue[1]
+      self.client:send(elem.msg .. "\n")
+      self:log("[<-] " .. elem.msg)
+      table.remove(self.outputqueue, 1)
+      
+      self.lastsentstamp = os.time()
+    end
+
+    --[[if prio == nil then
+      prio = 1
+    end
+    table.insert(self.outputqueue, {msg = str, prio = prio})]]
+  end
+  
+  -- handle incomming messages
   local line, err = self.client:receive()
   
   if not (err == nil) then
