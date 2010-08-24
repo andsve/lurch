@@ -43,7 +43,7 @@ function create_bot(serveraddr, serverport)
     if not succ then
       print("Connection failed: " .. tostring(err))
     end
-    self.client:settimeout(0)
+    self.client:settimeout(1)
     self.activitystamp = os.time()
     self.lastsentstamp = os.time()
   end
