@@ -116,7 +116,11 @@ function b:parse_message(line, err)
   
   -- forward to modules
   for k,v in pairs(self.modules) do
-    setfenv(v.parse_message, _G)(self, line)
+    if not (v.parse_message == nil) then
+      if type(v.parse_message) == "function" then
+        setfenv(v.parse_message, _G)(self, line)
+      end
+    end
   end
 end
 

@@ -66,7 +66,9 @@ It's easy to add new triggers, just have a look inside `triggers.lua` and it sho
 Lurch can load modules via git. The best way to understand how they work is to look at one of the samples below:
 
 * define -- Adds a :define trigger via the modules system. The trigger will send a search request to google and parse out the first best definition of the word supplied.  
-  Url: http://gist.github.com/546307  
-  To load it execute: `:loadmod define git://gist.github.com/546307.git`
-
-
+  Url: `http://gist.github.com/546307`  
+  To load it: `:loadmod define git://gist.github.com/546307.git`
+  
+* title -- Tracks the last url to be said, and looks up the the page title on request (`:title`).
+    Url: `http://gist.github.com/551547`  
+    To load it: `:loadmod title git://gist.github.com/551547.git`
