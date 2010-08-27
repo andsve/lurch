@@ -69,6 +69,11 @@ Lurch can load modules via git. The best way to understand how they work is to l
   Url: `http://gist.github.com/546307`  
   To load it: `:loadmod define git://gist.github.com/546307.git`
   
-* title -- Tracks the last url to be said, and looks up the the page title on request (`:title`).  
+* translate -- Uses Google Translate to translate a string from one language to another (`:tr <lang1> <lang2> <string to translate>`).  
+    List of languages: `http://gist.github.com/552383`  
     Url: `http://gist.github.com/551547`  
     To load it: `:loadmod title git://gist.github.com/551547.git`
+    
+* title -- Tracks the last url to be said, and looks up the the page title on request (`:title`).  
+    Url: `http://gist.github.com/552356`  
+    To load it: `:loadmod title git://gist.github.com/552356.git`
