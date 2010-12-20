@@ -68,7 +68,7 @@ function create_bot(serveraddr, serverport)
 end
 
 -- main loop
-local bot = create_bot(arg[1], arg[2])
+bot = create_bot(arg[1], arg[2])
 while 1 do
   
   bot:bind_functions()
