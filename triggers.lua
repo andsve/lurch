@@ -58,7 +58,7 @@ function yuno(bot, chan, msg)
 
   local i,j,t1,t2 = string.find(msg, 'yuno "(.-)" "(.-)"')
   if not (i == nil) then
-    local request_body = "templateType=Y-U-NO&text0=" .. tostring(t1) .. "&text1=" .. tostring(t2) .. "&templateID=4930081&generatorName=Y-U-NO"
+    local request_body = "templateType=AdviceDogSpinoff&text0=" .. tostring(t1) .. "&text1=" .. tostring(t2) .. "&templateID=165241&generatorName=Y-U-NO"
   
     local b, c, h = http.request("http://memegenerator.net/Instance/CreateOrEdit", request_body)
 
