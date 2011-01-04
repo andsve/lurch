@@ -65,6 +65,8 @@ function yuno(bot, chan, msg)
     local a,c,img_url = string.find(b, '.-a href="(.-)".+')
     if not (a == nil) then
       bot:say(chan, "http://images.memegenerator.net" .. tostring(img_url) .. ".jpg")
+    else
+      bot:say(chan, "Could not find image link!")
     end
 
   end
