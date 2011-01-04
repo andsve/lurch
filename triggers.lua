@@ -51,3 +51,21 @@ function bitch(bot, chan, msg)
 
   end
 end
+
+function yuno(bot, chan, msg)
+  local http = require("socket.http")
+  local ltn12 = require("ltn12")
+
+  local i,j,t1,t2 = string.find(msg, 'yuno "(.-)" "(.-)"')
+  if not (i == nil) then
+    local request_body = "templateType=Y-U-NO&text0=" .. tostring(t1) .. "&text1=" .. tostring(t2) .. "&templateID=4930081&generatorName=Y-U-NO"
+  
+    local b, c, h = http.request("http://memegenerator.net/Instance/CreateOrEdit", request_body)
+
+    local a,c,img_url = string.find(b, '.-a href="(.-)".+')
+    if not (a == nil) then
+      bot:say(chan, "http://images.memegenerator.net" .. tostring(img_url) .. ".jpg")
+    end
+
+  end
+end
